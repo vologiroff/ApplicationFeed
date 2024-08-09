@@ -1,5 +1,5 @@
 //
-//  FeedViewControllerTest+TestHelpers.swift
+//  ListViewControllerTest+TestHelpers.swift
 //  ApplicationFeediOSTests
 //
 //  Created by Kantemir Vologirov on 29.11.23..
@@ -8,9 +8,15 @@
 import UIKit
 import ApplicationFeediOS
 
-extension FeedViewController {
+extension ListViewController {
+    public override func loadViewIfNeeded() {
+        super.loadViewIfNeeded()
+
+        tableView.frame = CGRect(x: 0, y: 0, width: 1, height: 1)
+    }
+    
     var errorMessage: String? {
-        return errorView?.message
+        return errorView.message
     }
     
     var isShowingLoadingIndicator: Bool {
@@ -24,6 +30,17 @@ extension FeedViewController {
     @discardableResult
     func simulateFeedImageViewVisible(at index: Int) -> FeedImageCell? {
         return feedImageView(at: index) as? FeedImageCell
+    }
+    
+    @discardableResult
+    func simulateFeedImageBecomingVisibleAgain(at row: Int) -> FeedImageCell? {
+        let view = simulateFeedImageViewNotVisible(at: row)
+        
+        let delegate = tableView.delegate
+        let index = IndexPath(row: row, section: feedImagesSection)
+        delegate?.tableView?(tableView, willDisplay: view!, forRowAt: index)
+        
+        return view
     }
     
     @discardableResult
@@ -54,10 +71,19 @@ extension FeedViewController {
     func simulateAppearance() {
         if !isViewLoaded {
             loadViewIfNeeded()
-            replaceRefreshControlWithFakeForiOS17Support()
+            prepareForFirstAppearance()
         }
         beginAppearanceTransition(true, animated: false)
         endAppearanceTransition()
+    }
+    
+    private func prepareForFirstAppearance() {
+        setSmallFrameToPreventRenderingCells()
+        replaceRefreshControlWithFakeForiOS17Support()
+    }
+    
+    private func setSmallFrameToPreventRenderingCells() {
+        tableView.frame = CGRect(x: 0, y: 0, width: 390, height: 1)
     }
     
     func replaceRefreshControlWithFakeForiOS17Support() {
@@ -77,7 +103,7 @@ extension FeedViewController {
     }
     
     func numberOfRenderedFeedImageViews() -> Int {
-        return tableView.numberOfRows(inSection: feedImagesSection)
+        tableView.numberOfSections == 0 ? 0 : tableView.numberOfRows(inSection: feedImagesSection)
     }
     
     func feedImageView(at row: Int) -> UITableViewCell? {

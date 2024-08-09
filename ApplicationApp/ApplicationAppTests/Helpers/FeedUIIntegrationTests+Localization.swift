@@ -1,5 +1,5 @@
 //
-//  FeedViewControllerTests+Localization.swift
+//  ListViewControllerTests+Localization.swift
 //  ApplicationFeediOSTests
 //
 //  Created by Kantemir Vologirov on 6.12.23..
